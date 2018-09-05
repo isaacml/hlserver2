@@ -38,6 +38,7 @@ var (
 	numgo      int //number of goroutines working
 	dominio	   string;
 	server	   string;
+	iface	   string;
 )
 
 // Inicializamos la conexion a BD y el log de errores
