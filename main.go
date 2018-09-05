@@ -36,6 +36,8 @@ var (
 	dbgeoip    *geoip2.Reader
 	mu_dbgeoip sync.Mutex
 	numgo      int //number of goroutines working
+	dominio	   string;
+	server	   string;
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -85,8 +87,13 @@ func main() {
 		go controlinternalsessions()
 	}
 	loadSettings(playingsRoot)
+	mu_cloud.Lock();
+	dominio = cloud["domain"];
+	iface = cloud["iface"];
+	server = cloud["cloudserver"];
+	mu_cloud.Unlock();
 	Hardw = gohw.Hardware()
-	Hardw.Run("eth0")
+	Hardw.Run(iface)
 	go func() {
 		for {
 			if procsrunning("nginx") == 0 {
@@ -113,7 +120,6 @@ func main() {
 	}()
 	go mantenimiento()
 	go encoder()
-	go http.ListenAndServe(":" + http_port, nil)
 
 	http.HandleFunc("/", root)
 	http.HandleFunc(login_cgi, login)
@@ -147,7 +153,8 @@ func main() {
 	http.HandleFunc("/totalMonthsChange.cgi", totalMonthsChange)
 	http.HandleFunc("/hardware.cgi", gethardware)
 
-	log.Fatal(http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/todostreaming.es/cert.pem", "/etc/letsencrypt/live/todostreaming.es/privkey.pem", nil)) // Servidor HTTPS/2 multihilo
+	go http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/" + dominio + "/cert.pem", "/etc/letsencrypt/live/" + dominio + "/privkey.pem", nil); // Servidor HTTPS/2 multihilo
+	log.Fatal(http.ListenAndServe(":" + http_port, nil)) // Servidor HTTP clasico
 }
 
 func redirect(w http.ResponseWriter, req *http.Request) {

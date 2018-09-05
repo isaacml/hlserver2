@@ -39,6 +39,10 @@ func root(w http.ResponseWriter, r *http.Request) {
 	//hh, mm, ss := time.Now().Clock()
 	defer fr.Close()
 	if strings.Contains(namefile, ".m3u8") {
+		if !strings.Contains(r.Referer(), dominio) && !strings.Contains(r.Referer(), server){ // it is not our playtv
+			http.NotFound(w, r)
+			return
+		}
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Content-Type", "application/vnd.apple.mpegurl")
 		w.Header().Set("Access-Control-Allow-Headers", "*")
