@@ -39,6 +39,7 @@ var (
 	dominio	   string;
 	server	   string;
 	iface	   string;
+	ssldom     string;
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -92,6 +93,7 @@ func main() {
 	dominio = cloud["domain"];
 	iface = cloud["iface"];
 	server = cloud["cloudserver"];
+	ssldom = cloud["ssldom"];
 	mu_cloud.Unlock();
 	Hardw = gohw.Hardware()
 	Hardw.Run(iface)
@@ -154,7 +156,7 @@ func main() {
 	http.HandleFunc("/totalMonthsChange.cgi", totalMonthsChange)
 	http.HandleFunc("/hardware.cgi", gethardware)
 
-	go http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/" + dominio + "/cert.pem", "/etc/letsencrypt/live/" + dominio + "/privkey.pem", nil); // Servidor HTTPS/2 multihilo
+	go http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/" + ssldom + "/cert.pem", "/etc/letsencrypt/live/" + ssldom + "/privkey.pem", nil); // Servidor HTTPS/2 multihilo
 	log.Fatal(http.ListenAndServe(":" + http_port, nil)) // Servidor HTTP clasico
 }
 
