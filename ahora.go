@@ -131,7 +131,7 @@ func play(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	allname := username + "-" + r.FormValue("stream")
 	mu_cloud.Lock()
-	stream := "https://" + cloud["cloudserver"] + "/live/" + allname + ".m3u8"
+	stream := cloud["proto"] + "://" + cloud["cloudserver"] + "/live/" + allname + ".m3u8"
 	mu_cloud.Unlock()
 	//video := fmt.Sprintf("<script type='text/javascript' src='http://www.domainplayers.org/js/jwplayer.js'></script><div id='container'><video width='600' height='409' controls autoplay src='%s'/></div><script type='text/javascript'>jwplayer('container').setup({ width: '600', height: '409', skin: 'http://www.domainplayers.org/newtubedark.zip', plugins: { 'http://www.domainplayers.org/qualitymonitor.swf' : {} }, image: '', modes: [{ type:'flash', src:'http://www.domainplayers.org/player.swf', config: { autostart: 'true', provider:'http://www.domainplayers.org/HLSProvider5.swf', file:'%s' } }]});</script>", stream, stream)
 	video := fmt.Sprintf("<script src=\"./hls.min.js\"></script><script src=\"./html5play.min.js\"></script><video id=\"video_x890\" controls width=\"600\" height=\"409\"><source id=\"src_x890\">Your browser does not support HTML5 video. We recommend using <a href=\"https://www.google.es/chrome/browser/desktop/\">Google Chrome</a></video><script>var url = \"%s\";html5player(url, 1, \"video_x890\", \"src_x890\");</script>", stream)
