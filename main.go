@@ -5,10 +5,6 @@ import (
 	"database/sql"
 	"encoding/xml"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/oschwald/geoip2-golang"
-	"github.com/todostreaming/gohw"
-	"github.com/todostreaming/syncmap"
 	"io"
 	"io/ioutil"
 	"log"
@@ -21,6 +17,11 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/oschwald/geoip2-golang"
+	"github.com/todostreaming/gohw"
+	"github.com/todostreaming/syncmap"
 )
 
 var (
@@ -36,10 +37,11 @@ var (
 	dbgeoip    *geoip2.Reader
 	mu_dbgeoip sync.Mutex
 	numgo      int //number of goroutines working
-	dominio	   string;
-	server	   string;
-	iface	   string;
-	ssldom     string;
+	dominio    string
+	server     string
+	iface      string
+	ssldom     string
+	restric    bool // if domain / dominio = "no" restrict = false
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -89,12 +91,17 @@ func main() {
 		go controlinternalsessions()
 	}
 	loadSettings(playingsRoot)
-	mu_cloud.Lock();
-	dominio = cloud["domain"];
-	iface = cloud["iface"];
-	server = cloud["cloudserver"];
-	ssldom = cloud["ssldom"];
-	mu_cloud.Unlock();
+	mu_cloud.Lock()
+	dominio = cloud["domain"]
+	iface = cloud["iface"]
+	server = cloud["cloudserver"]
+	ssldom = cloud["ssldom"]
+	mu_cloud.Unlock()
+	if dominio == "no" {
+		restric = false
+	} else {
+		restric = true
+	}
 	Hardw = gohw.Hardware()
 	Hardw.Run(iface)
 	go func() {
@@ -156,18 +163,18 @@ func main() {
 	http.HandleFunc("/totalMonthsChange.cgi", totalMonthsChange)
 	http.HandleFunc("/hardware.cgi", gethardware)
 
-	go http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/" + ssldom + "/cert.pem", "/etc/letsencrypt/live/" + ssldom + "/privkey.pem", nil); // Servidor HTTPS/2 multihilo
-	log.Fatal(http.ListenAndServe(":" + http_port, nil)) // Servidor HTTP clasico
+	go http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/"+ssldom+"/cert.pem", "/etc/letsencrypt/live/"+ssldom+"/privkey.pem", nil) // Servidor HTTPS/2 multihilo
+	log.Fatal(http.ListenAndServe(":"+http_port, nil))                                                                                  // Servidor HTTP clasico
 }
 
 func redirect(w http.ResponseWriter, req *http.Request) {
-    // remove/add not default ports from req.Host
-    target := "https://" + req.Host + req.URL.Path 
-    if len(req.URL.RawQuery) > 0 {
-        target += "?" + req.URL.RawQuery
-    }
-    log.Printf("redirect to: %s", target)
-    http.Redirect(w, req, target, http.StatusTemporaryRedirect)
+	// remove/add not default ports from req.Host
+	target := "https://" + req.Host + req.URL.Path
+	if len(req.URL.RawQuery) > 0 {
+		target += "?" + req.URL.RawQuery
+	}
+	log.Printf("redirect to: %s", target)
+	http.Redirect(w, req, target, http.StatusTemporaryRedirect)
 }
 
 func gethardware(w http.ResponseWriter, r *http.Request) {
@@ -445,6 +452,9 @@ func loadSettings(filename string) {
 			linea, rerr := reader.ReadString('\n')
 			if rerr != nil {
 				break
+			}
+			if strings.Contains(linea, "#") {
+				continue
 			}
 			linea = strings.TrimRight(linea, "\n")
 			item := strings.Split(linea, " = ")

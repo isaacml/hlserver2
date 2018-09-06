@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/todostreaming/realip"
 	"io"
 	"io/ioutil"
 	"mime"
@@ -11,6 +10,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/todostreaming/realip"
 )
 
 // sirve todos los ficheros estáticos de la web html,css,js,graficos,etc
@@ -39,9 +40,16 @@ func root(w http.ResponseWriter, r *http.Request) {
 	//hh, mm, ss := time.Now().Clock()
 	defer fr.Close()
 	if strings.Contains(namefile, ".m3u8") {
-		if !strings.Contains(r.Referer(), dominio) && !strings.Contains(r.Referer(), server){ // it is not our playtv
-			http.NotFound(w, r)
-			return
+		if restric {
+			u, err := url.Parse(r.Referer())
+			if err != nil {
+				http.NotFound(w, r)
+				return
+			}
+			if !strings.Contains(dominio, u.Hostname()) && !strings.Contains(r.Referer(), server) { // it is not our playtv
+				http.NotFound(w, r)
+				return
+			}
 		}
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Content-Type", "application/vnd.apple.mpegurl")
