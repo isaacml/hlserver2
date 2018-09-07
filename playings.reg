@@ -1,0 +1,10 @@
+# dominio URL en el player del panel
+cloudserver = telebilbao.todostreaming.es
+# domain = no (player sin restricciones) // domain = [lista de dominios,] (restringido a esos dominios)
+domain = www.telebilbao.es
+# nombre del interfaz principal ethernet por donde va todo el trafico
+iface = ens3
+# protocolo a usar en la URL del player del panel
+proto = http
+# dominio certificado local (guardado en /etc/letsencrypt/live/{ssldom})
+ssldom = todostreaming.es
