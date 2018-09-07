@@ -9,8 +9,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//var db_mu sync.Mutex
-var c = make(chan int, 1)
+var c = make(chan bool, 1)
 
 func main() {
 	os.Remove("/tmp/testlock.db")
@@ -36,7 +35,6 @@ func main() {
 	}
 
 	ch := make(chan bool)
-	c <- 1 // Put the initial value into the channel
 	go writer(db)
 	go reader(db)
 	<-ch
@@ -84,10 +82,10 @@ func writer(db *sql.DB) {
         update counters set id = ?
         `
 	for {
-		<-c // Grab the ticket
+		c <- true // Grab the ticket
 		_, err := dbLoc.Exec(sSql, i)
-		c <- 1 // Give it back
-		i += 1
+		<-c // Give it back
+		i++
 		fmt.Printf("Counter: %d\r", i)
 		if err != nil {
 			log.Printf("db error in writer %s", err)
@@ -107,9 +105,9 @@ func reader(db *sql.DB) {
         select * from counters
         `
 	for {
-		<-c // Grab the ticket
+		c <- true // Grab the ticket
 		_, err := dbLoc.Exec(sSql)
-		c <- 1 // Give it back
+		<-c // Give it back
 		if err != nil {
 			log.Printf("db error in reader %s", err)
 			os.Exit(1)
