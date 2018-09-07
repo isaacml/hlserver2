@@ -4,7 +4,9 @@ package main
 func authentication(user, pass string) bool {
 	var username, password string
 	var tipo int
+	db_mu.Lock()
 	query2, err := db.Query("SELECT username, password, type FROM admin WHERE username = ?", user)
+	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
 	}
@@ -25,7 +27,9 @@ func authentication(user, pass string) bool {
 func authentication_admin(user, pass string) bool {
 	var username, password string
 	var tipo int
+	db_mu.Lock()
 	query2, err := db.Query("SELECT username, password, type FROM admin WHERE username = ?", user)
+	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
 	}

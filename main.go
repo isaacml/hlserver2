@@ -259,7 +259,9 @@ func encoder() {
 					tiempo_now := time.Now().Unix()          // Tiempo actual
 					Bw_int.Set(val.Nombre, toInt(val.Bw_in)) // Guardamos el bitrate
 					info := fmt.Sprintf("%sx%sx%s %s/%s", val.Width, val.Height, val.Frame, val.Vcodec, val.Acodec)
+					db_mu.Lock()
 					err := db.QueryRow("SELECT count(*) FROM encoders WHERE username = ? AND streamname = ? AND ip= ?", username, streamname, val2.Ip).Scan(&count)
+					db_mu.Unlock()
 					if err != nil {
 						Error.Println(err)
 					}
@@ -341,7 +343,9 @@ func mantenimiento() {
 				db.Exec("DELETE FROM players WHERE timestamp < ?", limit_time)
 				db_mu.Unlock()
 				// Se seleccionan el total de Ips, las horas totales y el total de Gigabytes
+				db_mu.Lock()
 				query, err := db.Query("SELECT count(ipclient), sum(total_time)/3600, sum(kilobytes)/1000000, username, streamname FROM players GROUP BY username, streamname")
+				db_mu.Unlock()
 				if err != nil {
 					Error.Println(err)
 				}
@@ -396,7 +400,9 @@ func mantenimiento() {
 		if err != nil {
 			Error.Println(err)
 		}
+		db_mu.Lock()
 		query, err := db.Query("SELECT count(ipclient), username, streamname, os,  isocode, sum(total_time), sum(kilobytes) FROM players WHERE timestamp > ? AND time > 0 GROUP BY username, streamname, os, isocode", tiempo_limite)
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
 		}

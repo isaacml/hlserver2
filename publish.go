@@ -2,16 +2,19 @@ package main
 
 import (
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"net/http"
 	"strings"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func publish(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	stream := strings.Split(r.FormValue("name"), "-")
 	nom_user := stream[0]
+	db_mu.Lock()
 	query, err := db.Query("SELECT status FROM admin WHERE username = ?", nom_user)
+	db_mu.Unlock()
 	if err != nil {
 		Warning.Println(err)
 		http.Error(w, "Internal Server Error", 500)
