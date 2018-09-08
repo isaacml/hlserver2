@@ -4,11 +4,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Grafico struct {
@@ -95,6 +96,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 	dbday_mu.RUnlock()
 	if err != nil {
 		Warning.Println(err)
+		return
 	}
 	for query.Next() {
 		var time, count int
@@ -102,6 +104,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 		err = query.Scan(&time, &so, &count)
 		if err != nil {
 			Warning.Println(err)
+			continue
 		}
 		arrTime = append(arrTime, time)
 		arrSo = append(arrSo, so)
@@ -113,6 +116,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 	dbday_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
+		return
 	}
 	for query2.Next() {
 		var time int
@@ -120,6 +124,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 		err = query2.Scan(&time, &isocode)
 		if err != nil {
 			Warning.Println(err)
+			continue
 		}
 		timePais = append(timePais, time)
 		arrIso = append(arrIso, isocode)
@@ -130,6 +135,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 	dbday_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
+		return
 	}
 	for query3.Next() {
 		var count int
@@ -137,6 +143,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 		err = query3.Scan(&count, &isocode)
 		if err != nil {
 			Warning.Println(err)
+			continue
 		}
 		sesionPais = append(sesionPais, count)
 		paisSes = append(paisSes, isocode)
@@ -147,12 +154,14 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 	dbday_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
+		return
 	}
 	for query4.Next() {
 		var count, hora int
 		err = query4.Scan(&count, &hora)
 		if err != nil {
 			Warning.Println(err)
+			continue
 		}
 		sesHour = onlyHours()
 		horaSes[hora] = count
@@ -220,6 +229,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 		dbday_mu.RUnlock()
 		if err != nil {
 			Warning.Println(err)
+			return
 		}
 		if exist.Next() == false {
 			Warning.Println("Fichero de base de datos vacío.")
@@ -230,6 +240,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 			dbday_mu.RUnlock()
 			if err != nil {
 				Warning.Println(err)
+				return
 			}
 			for query.Next() {
 				var time, count int
@@ -237,6 +248,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 				err = query.Scan(&time, &so, &count)
 				if err != nil {
 					Warning.Println(err)
+					continue
 				}
 				arrTime = append(arrTime, time)
 				arrSo = append(arrSo, so)
@@ -248,6 +260,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 			dbday_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			for query2.Next() {
 				var time int
@@ -255,6 +268,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 				err = query2.Scan(&time, &isocode)
 				if err != nil {
 					Warning.Println(err)
+					continue
 				}
 				timePais = append(timePais, time)
 				arrIso = append(arrIso, isocode)
@@ -265,6 +279,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 			dbday_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			for query3.Next() {
 				var count int
@@ -272,6 +287,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 				err = query3.Scan(&count, &isocode)
 				if err != nil {
 					Warning.Println(err)
+					continue
 				}
 				sesionPais = append(sesionPais, count)
 				paisSes = append(paisSes, isocode)
@@ -282,6 +298,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 			dbday_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			for query4.Next() {
 				var count int
@@ -289,6 +306,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 				err = query4.Scan(&count, &hora)
 				if err != nil {
 					Warning.Println(err)
+					continue
 				}
 				sesHour = onlyHours()
 				horaSes[hora] = count

@@ -178,11 +178,12 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 	}
 	count := 0
 	for query.Next() {
-		count++
 		err = query.Scan(&time_old, &tiempo_old, &kb_old, &total_time_old)
 		if err != nil {
 			Error.Println(err)
+			continue
 		}
+		count++
 	}
 	query.Close()
 	//Cuando no existe usuario, stream e ip

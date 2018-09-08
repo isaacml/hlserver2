@@ -66,11 +66,13 @@ func putMonthlyAdmin(w http.ResponseWriter, r *http.Request) {
 		dbmon_mu.RUnlock()
 		if err != nil {
 			Error.Println(err)
+			continue
 		}
 		for query.Next() {
 			err = query.Scan(&minutos, &megas)
 			if err != nil {
 				Warning.Println(err)
+				continue
 			}
 		}
 		query.Close()
@@ -118,11 +120,13 @@ func putMonthlyAdminChange(w http.ResponseWriter, r *http.Request) {
 			dbmon_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			for query.Next() {
 				err = query.Scan(&minutos, &megas)
 				if err != nil {
 					Warning.Println(err)
+					continue
 				}
 			}
 			query.Close()
@@ -168,6 +172,9 @@ func changeStatus(w http.ResponseWriter, r *http.Request) {
 		for query3.Next() {
 			var streams string
 			err = query3.Scan(&streams)
+			if err != nil {
+				continue
+			}
 			nombre := fmt.Sprintf("%s-%s", user, streams)
 			//Sacamos uno a uno los streams
 			peticion := fmt.Sprintf("http://127.0.0.1:8080/control/drop/publisher?app=live&name=%s", nombre)
@@ -212,6 +219,7 @@ func buscarClientes(w http.ResponseWriter, r *http.Request) {
 		err = query.Scan(&id, &nombre)
 		if err != nil {
 			Warning.Println(err)
+			continue
 		}
 		selector = fmt.Sprintf("<option value='%d'>%s</option>", id, nombre)
 		fmt.Fprintf(w, "%s", selector)

@@ -354,10 +354,12 @@ func mantenimiento() {
 				db1, err := sql.Open("sqlite3", dirDaylys+fecha_antigua+"dayly.db") // Apertura de la dateDayly.db antigua para lectura del pico/hora
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				db2, err := sql.Open("sqlite3", dirMonthlys+mes_antiguo+"monthly.db") // Apertura de mes actual + Monthly.db para escritura del resumen del pasado dia
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				//Declaracion de variables
 				var ips, horas, gigas, pico, horapico, minpico int
@@ -366,6 +368,7 @@ func mantenimiento() {
 					err = query.Scan(&ips, &horas, &gigas, &userName, &streamName)
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					// Se seleccionan el máximo de usuarios conectados, y la hora:min de la dayly antigua
 					// SELECT sum(count) AS cuenta, username, streamname, hour, minutes FROM resumen WHERE username = ? AND streamname = ? GROUP BY username, streamname, hour, minutes ORDER BY cuenta DESC
@@ -374,6 +377,7 @@ func mantenimiento() {
 					dbday_mu.RUnlock()
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					hourMin := fmt.Sprintf("%02d:%02d", horapico, minpico) //hour:min para monthly.db
 					dbmon_mu.Lock()
@@ -413,6 +417,7 @@ func mantenimiento() {
 			err = query.Scan(&num_filas, &user, &stream, &so, &isocode, &total_time, &total_kb)
 			if err != nil {
 				Error.Println(err)
+				continue
 			}
 			dbday_mu.Lock()
 			// inserto los datos de resumen

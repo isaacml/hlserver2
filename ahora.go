@@ -44,6 +44,7 @@ func encoderStatNow(w http.ResponseWriter, r *http.Request) {
 		err = query.Scan(&streamname, &isocode, &ip, &country, &tiempo, &bitrate, &info)
 		if err != nil {
 			Warning.Println(err)
+			continue
 		}
 		isocode = strings.ToLower(isocode)
 		time_connect = secs2time(tiempo)
@@ -93,6 +94,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 			err = query.Scan(&isocode, &country, &ips, &streamname)
 			if err != nil {
 				Warning.Println(err)
+				continue
 			}
 			isocode = strings.ToLower(isocode)
 			fmt.Fprintf(w, "<tr><td>%s <img class='pull-right' src=\"images/flags/%s.png\" title=\"%s\"></td><td>%s</td><td>%s</td></tr>",
@@ -117,6 +119,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 			err = query.Scan(&isocode, &country, &region, &city, &ipclient, &os, &streamname, &tiempo)
 			if err != nil {
 				Warning.Println(err)
+				continue
 			}
 			isocode = strings.ToLower(isocode)
 			time_connect = secs2time(tiempo)

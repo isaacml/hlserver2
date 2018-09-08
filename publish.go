@@ -26,6 +26,7 @@ func publish(w http.ResponseWriter, r *http.Request) {
 		err = query.Scan(&status)
 		if err != nil {
 			Warning.Println(err)
+			continue
 		}
 		if r.FormValue("call") == "publish" && status == 1 {
 			fmt.Fprintf(w, "Server OK")

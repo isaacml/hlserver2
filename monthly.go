@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Grafico2 struct {
@@ -83,6 +84,7 @@ func firstMonthly(w http.ResponseWriter, r *http.Request) {
 	dbmon_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
+		return
 	}
 	if !query2.Next() {
 		//No, campos vacios
@@ -95,12 +97,14 @@ func firstMonthly(w http.ResponseWriter, r *http.Request) {
 		dbmon_mu.RUnlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query3.Next() {
 			var stream string
 			err = query3.Scan(&stream)
 			if err != nil {
 				Warning.Println(err)
+				continue
 			}
 			menu3 += "<option label='" + stream + "' value='" + stream + "'>" + stream + "</option>"
 		}
@@ -116,6 +120,7 @@ func firstMonthly(w http.ResponseWriter, r *http.Request) {
 	dbmon_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
+		return
 	}
 	for query.Next() {
 		var audiencia, minutos, megas, pico int
@@ -124,6 +129,7 @@ func firstMonthly(w http.ResponseWriter, r *http.Request) {
 		err = query.Scan(&audiencia, &minutos, &promedio, &megas, &pico, &horapico, &fecha)
 		if err != nil {
 			Warning.Println(err)
+			continue
 		}
 		hour := strings.Split(horapico, ":")
 		day := strings.Split(fecha, ":")
@@ -201,6 +207,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 			dbmon_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			if !query2.Next() {
 				//No, campos vacios
@@ -213,12 +220,14 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 				dbmon_mu.RUnlock()
 				if err != nil {
 					Warning.Println(err)
+					return
 				}
 				for query3.Next() {
 					var stream string
 					err = query3.Scan(&stream)
 					if err != nil {
 						Warning.Println(err)
+						continue
 					}
 					menu3 += "<option label='" + stream + "' value='" + stream + "'>" + stream + "</option>"
 				}
@@ -230,6 +239,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 			dbmon_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			for query.Next() {
 				var audiencia, minutos, megas, pico int
@@ -238,6 +248,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 				err = query.Scan(&audiencia, &minutos, &promedio, &megas, &pico, &horapico, &fecha)
 				if err != nil {
 					Warning.Println(err)
+					continue
 				}
 				hour := strings.Split(horapico, ":")
 				day := strings.Split(fecha, ":")
@@ -275,6 +286,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 			dbmon_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			//Generamos el select de streams
 			menu3 := "<option label='todo' value='todo'>Todo</option>"
@@ -284,6 +296,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 				err = query2.Scan(&stream)
 				if err != nil {
 					Warning.Println(err)
+					continue
 				}
 				if stream == r.FormValue("stream") {
 					menu3 += "<option label='" + stream + "' value='" + stream + "' selected>" + stream + "</option>"
@@ -297,6 +310,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 			dbmon_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
+				return
 			}
 			for query.Next() {
 				var audiencia, minutos, megas, pico int
@@ -305,6 +319,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 				err = query.Scan(&audiencia, &minutos, &promedio, &megas, &pico, &horapico, &fecha)
 				if err != nil {
 					Warning.Println(err)
+					continue
 				}
 				hour := strings.Split(horapico, ":")
 				day := strings.Split(fecha, ":")
@@ -363,11 +378,13 @@ func totalMonths(w http.ResponseWriter, r *http.Request) {
 	dbmon_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
+		return
 	}
 	for query.Next() {
 		err = query.Scan(&minutos, &megas)
 		if err != nil {
 			Warning.Println(err)
+			continue
 		}
 	}
 	query.Close()
@@ -409,11 +426,13 @@ func totalMonthsChange(w http.ResponseWriter, r *http.Request) {
 		dbmon_mu.RUnlock()
 		if err != nil {
 			Warning.Println(err)
+			return
 		}
 		for query.Next() {
 			err = query.Scan(&minutos, &megas)
 			if err != nil {
 				Warning.Println(err)
+				continue
 			}
 		}
 		query.Close()
