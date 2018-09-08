@@ -45,8 +45,9 @@ func editar_admin(w http.ResponseWriter, r *http.Request) {
 		db_mu.Unlock()
 		if err1 != nil {
 			Error.Println(err1)
+		} else {
+			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
 		}
-		fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
 	} else {
 		bad := "Las contraseñas no coinciden."
 		fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)
@@ -76,8 +77,9 @@ func editar_cliente(w http.ResponseWriter, r *http.Request) {
 		db_mu.Unlock()
 		if err1 != nil {
 			Error.Println(err1)
+		} else {
+			fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
 		}
-		fmt.Fprintf(w, "<div class='form-group text-success'>%s</div>", good)
 	} else {
 		bad := "Las contraseñas no coinciden."
 		fmt.Fprintf(w, "<div class='form-group text-danger'>%s</div>", bad)

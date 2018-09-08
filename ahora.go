@@ -35,6 +35,7 @@ func encoderStatNow(w http.ResponseWriter, r *http.Request) {
 	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
+		return
 	}
 	fmt.Fprintf(w, "<h1>%s</h1><p><b>Conectados el día %s a las %s UTC</b></p><table class=\"table table-striped table-bordered table-hover\"><th>Play</th><th>INFO</th><th>País</th><th>IP</th><th>Stream</th><th>Tiempo conectado</th>", username, fecha, hora)
 	for query.Next() {
@@ -51,6 +52,7 @@ func encoderStatNow(w http.ResponseWriter, r *http.Request) {
 			streamname, streamname, INFO, isocode, country, ip, streamname, time_connect)
 	}
 	query.Close()
+
 	fmt.Fprintf(w, "</table>")
 }
 
@@ -74,6 +76,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
+		return
 	}
 	if contador >= 100 {
 		db_mu.Lock()
@@ -81,6 +84,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		fmt.Fprintf(w, "<table class=\"table table-striped table-bordered table-hover\"><th>País</th><th>Cantidad de IPs</th><th>Stream</th>")
 		fmt.Fprintf(w, "<tr><td align=\"center\" colspan='3'><b>Total:</b> %d players conectados</td></tr>", contador)
@@ -95,6 +99,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 				country, isocode, country, ips, streamname)
 		}
 		query.Close()
+
 		fmt.Fprintf(w, "</table>")
 	} else {
 		db_mu.Lock()
@@ -102,6 +107,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 		db_mu.Unlock()
 		if err != nil {
 			Warning.Println(err)
+			return
 		}
 		fmt.Fprintf(w, "<table class=\"table table-striped table-bordered table-hover\"><th>País</th><th>Region</th><th>Ciudad</th><th>Dirección IP</th><th>Stream</th><th>O.S</th><th>Tiempo conectado</th>")
 		fmt.Fprintf(w, "<tr><td align=\"center\" colspan='7'><b>Total:</b> %d players conectados</td></tr>", contador)
@@ -118,6 +124,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 				country, isocode, country, region, city, ipclient, streamname, os, time_connect)
 		}
 		query.Close()
+
 		fmt.Fprintf(w, "</table>")
 	}
 }

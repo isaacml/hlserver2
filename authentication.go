@@ -9,13 +9,17 @@ func authentication(user, pass string) bool {
 	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
+		return false
 	}
 	for query2.Next() {
 		err = query2.Scan(&username, &password, &tipo)
 		if err != nil {
 			Error.Println(err)
+			return false
 		}
 	}
+	query2.Close()
+
 	if user == username && pass == password && tipo == 0 {
 		return true
 	} else {
@@ -32,13 +36,17 @@ func authentication_admin(user, pass string) bool {
 	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
+		return false
 	}
 	for query2.Next() {
 		err = query2.Scan(&username, &password, &tipo)
 		if err != nil {
 			Error.Println(err)
+			return false
 		}
 	}
+	query2.Close()
+
 	if user == username && pass == password && tipo == 1 {
 		return true
 	} else {

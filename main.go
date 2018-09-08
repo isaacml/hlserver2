@@ -264,6 +264,7 @@ func encoder() {
 					db_mu.Unlock()
 					if err != nil {
 						Error.Println(err)
+						continue
 					}
 					//Cuando no existe usuario, stream e ip
 					if count == 0 {
@@ -348,6 +349,7 @@ func mantenimiento() {
 				db_mu.Unlock()
 				if err != nil {
 					Error.Println(err)
+					continue
 				}
 				db1, err := sql.Open("sqlite3", dirDaylys+fecha_antigua+"dayly.db") // Apertura de la dateDayly.db antigua para lectura del pico/hora
 				if err != nil {
@@ -405,6 +407,7 @@ func mantenimiento() {
 		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			continue
 		}
 		for query.Next() {
 			err = query.Scan(&num_filas, &user, &stream, &so, &isocode, &total_time, &total_kb)

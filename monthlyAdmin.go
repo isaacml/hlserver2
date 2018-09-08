@@ -50,6 +50,7 @@ func putMonthlyAdmin(w http.ResponseWriter, r *http.Request) {
 	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
+		return
 	}
 	for query2.Next() {
 		var user, pass, estado string
@@ -101,6 +102,7 @@ func putMonthlyAdminChange(w http.ResponseWriter, r *http.Request) {
 		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query2.Next() {
 			var user, pass, estado string
@@ -141,6 +143,7 @@ func changeStatus(w http.ResponseWriter, r *http.Request) {
 	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
+		return
 	}
 	for query2.Next() {
 		err = query2.Scan(&id, &user, &status)
@@ -160,6 +163,7 @@ func changeStatus(w http.ResponseWriter, r *http.Request) {
 		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
+			return
 		}
 		for query3.Next() {
 			var streams string
@@ -202,6 +206,7 @@ func buscarClientes(w http.ResponseWriter, r *http.Request) {
 	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
+		return
 	}
 	for query.Next() {
 		err = query.Scan(&id, &nombre)

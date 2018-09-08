@@ -174,6 +174,7 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
+		return
 	}
 	count := 0
 	for query.Next() {
