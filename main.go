@@ -42,6 +42,7 @@ var (
 	iface      string
 	ssldom     string
 	restric    bool // if domain / dominio = "no" restrict = false
+	onlyweb    bool
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -96,6 +97,11 @@ func main() {
 	iface = cloud["iface"]
 	server = cloud["cloudserver"]
 	ssldom = cloud["ssldom"]
+	if cloud["onlyweb"] == "no" {
+		onlyweb = false
+	} else {
+		onlyweb = true
+	}
 	mu_cloud.Unlock()
 	if dominio == "no" {
 		restric = false

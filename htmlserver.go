@@ -17,6 +17,12 @@ import (
 // sirve todos los ficheros estáticos de la web html,css,js,graficos,etc
 func root(w http.ResponseWriter, r *http.Request) {
 	var namefile string
+	if onlyweb {
+		if !strings.Contains(r.UserAgent(), "Mozilla") && !strings.Contains(r.UserAgent(), "stagefright") && !strings.Contains(r.UserAgent(), "Mac") {
+			http.NotFound(w, r)
+			return
+		}
+	}
 	namefile = strings.TrimRight(rootdir+r.URL.Path[1:], "/")
 	fileinfo, err := os.Stat(namefile)
 	if err != nil {

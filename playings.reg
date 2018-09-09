@@ -8,3 +8,4 @@ iface = ens3
 proto = http
 # dominio certificado local (guardado en /etc/letsencrypt/live/{ssldom})
 ssldom = todostreaming.es
+onlyweb = no
