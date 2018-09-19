@@ -112,19 +112,19 @@
 <script type="text/javascript">
         $(document).ready(function(){
             $.post("/encoderStatNow.cgi", function(data, status) {
-                $("#encoders").html(data);
+                if (data != "") $("#encoders").html(data);
             });
             $.post("/playerStatNow.cgi", function(data, status) {
-                $("#players").html(data);
+                if (data != "") $("#players").html(data);
             });
             setInterval("delayedPost()", 10000);
         });
         function delayedPost() {
             $.post("/encoderStatNow.cgi", function(data, status) {
-                $("#encoders").html(data);
+                if (data != "") $("#encoders").html(data);
             });
             $.post("/playerStatNow.cgi", function(data, status) {
-                $("#players").html(data);
+                if (data != "") $("#players").html(data);
             });
         }
         function launch(newURL, newName, newFeatures, orgName) {
