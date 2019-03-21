@@ -9,3 +9,5 @@ proto = http
 # dominio certificado local (guardado en /etc/letsencrypt/live/{ssldom})
 ssldom = todostreaming.es
 onlyweb = no
+# stats = yes/no (activa/desactiva estadísticas)
+stats = yes

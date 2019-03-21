@@ -67,7 +67,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", fileinfo.Size()))
 		w.Header().Set("Accept-Ranges", "bytes")
 		query, _ := url.ParseQuery(r.URL.RawQuery)
-		if numgo < 100000 { // if there are more than 100k goroutines working, live stats will stop for a while
+		if (numgo < 30000) && stats { // if there are more than 30k goroutines working, live stats will stop for a while
 			go createStats(namefile, r.Header.Get("User-Agent"), realip.RealIP(r), getip(r.RemoteAddr), query.Get("city")) // try to use less internal variables to save ram usage
 		}
 		io.Copy(w, fr)

@@ -43,6 +43,7 @@ var (
 	ssldom     string
 	restric    bool // if domain / dominio = "no" restrict = false
 	onlyweb    bool
+	stats      bool // true = stats ok; false = no stats at all
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -97,6 +98,11 @@ func main() {
 	iface = cloud["iface"]
 	server = cloud["cloudserver"]
 	ssldom = cloud["ssldom"]
+	if cloud["stats"] == "yes" {
+		stats = true
+	} else {
+		stats = false
+	}
 	if cloud["onlyweb"] == "no" {
 		onlyweb = false
 	} else {
