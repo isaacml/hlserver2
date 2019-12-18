@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"crypto/tls"
 	"database/sql"
 	"encoding/xml"
 	"fmt"
@@ -22,6 +23,7 @@ import (
 	"github.com/oschwald/geoip2-golang"
 	"github.com/todostreaming/gohw"
 	"github.com/todostreaming/syncmap"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 var (
@@ -143,40 +145,57 @@ func main() {
 	go mantenimiento()
 	go encoder()
 
-	http.HandleFunc("/", root)
-	http.HandleFunc(login_cgi, login)
-	http.HandleFunc(logout_cgi, logout)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", root)
+	mux.HandleFunc(login_cgi, login)
+	mux.HandleFunc(logout_cgi, logout)
 	// Handlers de graficos
-	http.HandleFunc("/encoderStatNow.cgi", encoderStatNow)
-	http.HandleFunc("/playerStatNow.cgi", playerStatNow)
-	http.HandleFunc("/consultaFecha.cgi", consultaFecha)
-	http.HandleFunc("/firstFecha.cgi", firstFecha)
-	http.HandleFunc("/getMonthsYears.cgi", getMonthsYears)
-	http.HandleFunc("/giveFecha.cgi", giveFecha)
-	http.HandleFunc("/zeroFields.cgi", zeroFields)
-	http.HandleFunc("/formatDaylyhtml.cgi", formatDaylyhtml)
-	http.HandleFunc("/createGraf.cgi", createGraf)
-	http.HandleFunc("/firstMonthly.cgi", firstMonthly)
-	http.HandleFunc("/graficosMonthly.cgi", graficosMonthly)
-	http.HandleFunc("/play.cgi", play)
-	http.HandleFunc("/publish.cgi", publish)
-	http.HandleFunc("/onplay.cgi", onplay)
-	http.HandleFunc("/getMonthsYearsAdmin.cgi", getMonthsYearsAdmin)
-	http.HandleFunc("/putMonthlyAdmin.cgi", putMonthlyAdmin)
-	http.HandleFunc("/putMonthlyAdminChange.cgi", putMonthlyAdminChange)
-	http.HandleFunc("/editar_admin.cgi", editar_admin)
-	http.HandleFunc("/editar_cliente.cgi", editar_cliente)
-	http.HandleFunc("/user_admin.cgi", user_admin)
-	http.HandleFunc("/changeStatus.cgi", changeStatus)
-	http.HandleFunc("/nuevoCliente.cgi", nuevoCliente)
-	http.HandleFunc("/borrarCliente.cgi", borrarCliente)
-	http.HandleFunc("/buscarClientes.cgi", buscarClientes)
-	http.HandleFunc("/totalMonths.cgi", totalMonths)
-	http.HandleFunc("/totalMonthsChange.cgi", totalMonthsChange)
-	http.HandleFunc("/hardware.cgi", gethardware)
+	mux.HandleFunc("/encoderStatNow.cgi", encoderStatNow)
+	mux.HandleFunc("/playerStatNow.cgi", playerStatNow)
+	mux.HandleFunc("/consultaFecha.cgi", consultaFecha)
+	mux.HandleFunc("/firstFecha.cgi", firstFecha)
+	mux.HandleFunc("/getMonthsYears.cgi", getMonthsYears)
+	mux.HandleFunc("/giveFecha.cgi", giveFecha)
+	mux.HandleFunc("/zeroFields.cgi", zeroFields)
+	mux.HandleFunc("/formatDaylyhtml.cgi", formatDaylyhtml)
+	mux.HandleFunc("/createGraf.cgi", createGraf)
+	mux.HandleFunc("/firstMonthly.cgi", firstMonthly)
+	mux.HandleFunc("/graficosMonthly.cgi", graficosMonthly)
+	mux.HandleFunc("/play.cgi", play)
+	mux.HandleFunc("/publish.cgi", publish)
+	mux.HandleFunc("/onplay.cgi", onplay)
+	mux.HandleFunc("/getMonthsYearsAdmin.cgi", getMonthsYearsAdmin)
+	mux.HandleFunc("/putMonthlyAdmin.cgi", putMonthlyAdmin)
+	mux.HandleFunc("/putMonthlyAdminChange.cgi", putMonthlyAdminChange)
+	mux.HandleFunc("/editar_admin.cgi", editar_admin)
+	mux.HandleFunc("/editar_cliente.cgi", editar_cliente)
+	mux.HandleFunc("/user_admin.cgi", user_admin)
+	mux.HandleFunc("/changeStatus.cgi", changeStatus)
+	mux.HandleFunc("/nuevoCliente.cgi", nuevoCliente)
+	mux.HandleFunc("/borrarCliente.cgi", borrarCliente)
+	mux.HandleFunc("/buscarClientes.cgi", buscarClientes)
+	mux.HandleFunc("/totalMonths.cgi", totalMonths)
+	mux.HandleFunc("/totalMonthsChange.cgi", totalMonthsChange)
+	mux.HandleFunc("/hardware.cgi", gethardware)
 
-	go http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/"+ssldom+"/cert.pem", "/etc/letsencrypt/live/"+ssldom+"/privkey.pem", nil) // Servidor HTTPS/2 multihilo
-	log.Fatal(http.ListenAndServe(":"+http_port, nil))                                                                                  // Servidor HTTP clasico
+	certManager := autocert.Manager{
+		Prompt: autocert.AcceptTOS,
+		Cache:  autocert.DirCache("certs"),
+	}
+
+	server := &http.Server{
+		Addr:    ":443",
+		Handler: mux,
+		TLSConfig: &tls.Config{
+			GetCertificate: certManager.GetCertificate,
+		},
+	}
+
+	go http.ListenAndServe(":80", certManager.HTTPHandler(nil))
+	server.ListenAndServeTLS("", "")
+
+	//go http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/"+ssldom+"/fullchain.pem", "/etc/letsencrypt/live/"+ssldom+"/privkey.pem", nil) // Servidor HTTPS/2 multihilo
+	//log.Fatal(http.ListenAndServe(":"+http_port, nil))                                                                                  // Servidor HTTP clasico
 }
 
 func redirect(w http.ResponseWriter, req *http.Request) {
