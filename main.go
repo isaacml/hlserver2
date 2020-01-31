@@ -180,7 +180,7 @@ func main() {
 
 	certManager := autocert.Manager{
 		Prompt: autocert.AcceptTOS,
-		Cache:  autocert.DirCache("certs"),
+		Cache:  autocert.DirCache("/etc/certs"),
 	}
 
 	server := &http.Server{
